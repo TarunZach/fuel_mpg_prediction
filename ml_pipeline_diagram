@@ -1,0 +1,17 @@
+// Machine Learning Pipeline
+digraph {
+	A [label="Data Loading"]
+	B [label=Preprocessing]
+	C [label=EDA]
+	D [label="Feature Engineering"]
+	E [label="Model Training (Supervised)"]
+	F [label=Evaluation]
+	G [label="Clustering (Unsupervised)"]
+	A -> B
+	B -> C
+	C -> D
+	D -> E
+	E -> F
+	D -> G
+	F -> G
+}

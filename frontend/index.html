@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="./styles.css">
+  <title>Fuel Economy Predictor & Vehicle Clustering</title>
+
+</head>
+
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>Fuel Economy AI</h1>
+      <p>Predict MPG and discover vehicle clusters using machine learning</p>
+    </div>
+
+    <div class="model-tabs">
+      <button class="tab-button active" onclick="switchTab('regression')">
+        MPG Prediction
+      </button>
+      <button class="tab-button" onclick="switchTab('clustering')">
+        Vehicle Clustering
+      </button>
+    </div>
+
+    <div class="content">
+      <div class="input-panel">
+        <form id="predictionForm">
+          <div class="form-group">
+            <label for="engineDispl">
+              Engine Displacement (L)
+              <span class="info-icon">
+                ?
+                <div class="tooltip">The volume of all engine cylinders combined. Larger displacement typically means
+                  more power but lower fuel efficiency. Measured in liters (L).</div>
+              </span>
+            </label>
+            <input type="range" id="engineDispl" class="range-input" min="1.0" max="7.0" step="0.1" value="2.5">
+            <span class="range-value" id="engineDisplValue">2.5</span>
+          </div>
+
+          <div class="form-group">
+            <label for="cylinders">
+              Number of Cylinders
+              <span class="info-icon">
+                ?
+                <div class="tooltip">The number of combustion chambers in the engine. More cylinders typically provide
+                  smoother power delivery but consume more fuel.</div>
+              </span>
+            </label>
+            <input type="range" id="cylinders" class="range-input" min="2" max="12" step="1" value="6">
+            <span class="range-value" id="cylindersValue">6</span>
+          </div>
+
+          <div class="form-group">
+            <label for="transmission">
+              Transmission
+              <span class="info-icon">
+                ?
+                <div class="tooltip">How the engine power is transferred to wheels:<br>• Auto (A6/A8) = Automatic
+                  6/8-speed<br>• Manual (M6) = Manual 6-speed<br>• CVT = Continuously Variable<br>• Auto(S6) = Sport
+                  automatic<br>• AM-S6/AV-S7 = Advanced automatics</div>
+              </span>
+            </label>
+            <select id="transmission" class="form-control">
+              <option value="Auto(A6)">Auto(A6)</option>
+              <option value="Auto(A8)">Auto(A8)</option>
+              <option value="Auto(S6)">Auto(S6)</option>
+              <option value="Manual(M6)">Manual(M6)</option>
+              <option value="CVT">CVT</option>
+              <option value="AM-S6">AM-S6</option>
+              <option value="AV-S7">AV-S7</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="driveSys">
+              Drive System
+              <span class="info-icon">
+                ?
+                <div class="tooltip">Which wheels receive engine power:<br>• FWD (F) = Front wheels only, best fuel
+                  economy<br>• RWD (R) = Rear wheels, better performance<br>• AWD (A) = All wheels always, best
+                  traction<br>• 4x4 (P) = Part-time all-wheel drive</div>
+              </span>
+            </label>
+            <select id="driveSys" class="form-control">
+              <option value="F">Front-Wheel Drive (FWD)</option>
+              <option value="R">Rear-Wheel Drive (RWD)</option>
+              <option value="A">All-Wheel Drive (AWD)</option>
+              <option value="P">4x4/Part-time AWD</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="carClass">
+              Vehicle Class
+              <span class="info-icon">
+                ?
+                <div class="tooltip">Vehicle category based on size and purpose:<br>• Compact = Small cars, best
+                  MPG<br>• Sedan = Mid-size passenger cars<br>• SUV = Sport Utility Vehicles<br>• Wagon = Extended cargo
+                  space<br>• Pickup = Utility trucks</div>
+              </span>
+            </label>
+            <select id="carClass" class="form-control">
+              <option value="Compact">Compact</option>
+              <option value="Sedan">Sedan</option>
+              <option value="SUV">SUV</option>
+              <option value="Wagon">Wagon</option>
+              <option value="Pickup">Pickup</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="fuelType">
+              Fuel Type
+              <span class="info-icon">
+                ?
+                <div class="tooltip">Vehicles generally use Petrol (Gasoline) or Diesel. Sometimes even a hybrid</div>
+              </span>
+            </label>
+            <select id="fuelType" class="form-control">
+              <option value="G">Gasoline (Regular Unleaded Recommended)</option>
+              <option value="GPR">Gasoline (Premium Unleaded Required)</option>
+              <option value="DU">Diesel, ultra low sulfur</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <div class="checkbox-group">
+              <input type="checkbox" id="smartway">
+              <label for="smartway">
+                SmartWay Certified?
+                <span class="info-icon">
+                  ?
+                  <div class="tooltip">EPA SmartWay certification indicates the vehicle meets strict fuel efficiency and
+                    emissions standards, representing the top 15-25% of vehicles in its class.</div>
+                </span>
+              </label>
+            </div>
+          </div>
+
+          <button type="button" class="predict-btn" onclick="makePrediction()">
+            <span id="regressionBtn">Predict MPG</span>
+            <span id="clusteringBtn" style="display:none">Find Cluster</span>
+          </button>
+        </form>
+      </div>
+
+      <div class="output-panel">
+        <!-- Regression Results -->
+        <div id="regressionResults" class="tab-content active">
+          <div class="result-card">
+            <h3>MPG Prediction Result</h3>
+            <div id="mpgResult">
+              <div class="result-value">--</div>
+              <p>Enter vehicle details and click predict to get MPG estimate</p>
+            </div>
+          </div>
+
+          <div class="result-card">
+            <h4>Efficiency Tips</h4>
+            <div id="efficiencyTips">
+              <p>Factors that improve fuel economy:</p>
+              <ul>
+                <li>Smaller engine displacement</li>
+                <li>Fewer cylinders</li>
+                <li>Manual transmission or CVT</li>
+                <li>SmartWay certification</li>
+                <li>Lighter vehicle class</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <!-- Clustering Results -->
+        <div id="clusteringResults" class="tab-content">
+          <div class="result-card cluster-result">
+            <h3>Vehicle Cluster Analysis</h3>
+            <div id="clusterResult">
+              <div class="result-value">--</div>
+              <p>Enter vehicle details to find similar vehicle cluster</p>
+            </div>
+          </div>
+
+          <div class="result-card">
+            <h4>Similar Vehicles</h4>
+            <div id="similarVehicles">
+              <p>Discover vehicles in the same cluster with similar characteristics...</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="./index.js"></script>
+</body>
+
+</html>
