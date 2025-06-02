@@ -2,9 +2,9 @@
 <html lang="en">
 
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="./styles.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="./styles.css" />
   <title>Fuel Economy Predictor & Vehicle Clustering</title>
 </head>
 
@@ -23,17 +23,17 @@
     <div class="content">
       <div class="input-panel">
         <!-- Regression Form -->
-        <div id="regressionResults" class="tab-content active">
+        <div class="tab-content active" id="regressionForm">
           <form id="predictionForm">
             <div class="form-group">
               <label for="engineDispl">Engine Displacement (L)</label>
-              <input type="range" id="engineDispl" class="range-input" min="1.0" max="7.0" step="0.1" value="2.5">
+              <input type="range" id="engineDispl" class="range-input" min="1.0" max="7.0" step="0.1" value="2.5" />
               <span class="range-value" id="engineDisplValue">2.5</span>
             </div>
 
             <div class="form-group">
               <label for="cylinders">Number of Cylinders</label>
-              <input type="range" id="cylinders" class="range-input" min="2" max="12" step="1" value="6">
+              <input type="range" id="cylinders" class="range-input" min="2" max="12" step="1" value="6" />
               <span class="range-value" id="cylindersValue">6</span>
             </div>
 
@@ -82,36 +82,59 @@
 
             <div class="form-group">
               <div class="checkbox-group">
-                <input type="checkbox" id="smartway">
+                <input type="checkbox" id="smartway" />
                 <label for="smartway">SmartWay Certified?</label>
               </div>
             </div>
 
             <button type="button" class="predict-btn" onclick="makePrediction()">
-              <span id="regressionBtn">Predict MPG</span>
-              <span id="clusteringBtn" style="display:none">Find Cluster</span>
+              Predict MPG
             </button>
           </form>
         </div>
 
         <!-- Clustering Form -->
-        <div id="clusteringResults" class="tab-content">
-          <form id="clusteringForm">
+        <div class="tab-content" id="clusteringForm">
+          <form id="clusteringFormElement">
             <div class="form-group">
-              <label for="engineDispl">Engine Displacement (L)</label>
-              <input type="range" id="engineDispl" min="1.0" max="7.0" step="0.1" value="2.5">
-              <span id="engineDisplValue">2.5</span>
+              <label for="clusterEngineDispl">Engine Displacement (L)</label>
+              <input type="range" id="clusterEngineDispl" class="range-input" min="1.0" max="7.0" step="0.1"
+                value="2.5" />
+              <span class="range-value" id="clusterEngineDisplValue">2.5</span>
             </div>
 
             <div class="form-group">
-              <label for="cylinders">Number of Cylinders</label>
-              <input type="range" id="cylinders" min="2" max="12" step="1" value="6">
-              <span id="cylindersValue">6</span>
+              <label for="clusterCylinders">Number of Cylinders</label>
+              <input type="range" id="clusterCylinders" class="range-input" min="2" max="12" step="1" value="6" />
+              <span class="range-value" id="clusterCylindersValue">6</span>
             </div>
 
             <div class="form-group">
-              <label for="carClass">Vehicle Class</label>
-              <select id="carClass" class="form-control">
+              <label for="clusterTransmission">Transmission</label>
+              <select id="clusterTransmission" class="form-control">
+                <option value="Auto(A6)">Auto(A6)</option>
+                <option value="Auto(A8)">Auto(A8)</option>
+                <option value="Auto(S6)">Auto(S6)</option>
+                <option value="Manual(M6)">Manual(M6)</option>
+                <option value="CVT">CVT</option>
+                <option value="AM-S6">AM-S6</option>
+                <option value="AV-S7">AV-S7</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label for="clusterDriveSys">Drive System</label>
+              <select id="clusterDriveSys" class="form-control">
+                <option value="F">Front-Wheel Drive (FWD)</option>
+                <option value="R">Rear-Wheel Drive (RWD)</option>
+                <option value="A">All-Wheel Drive (AWD)</option>
+                <option value="P">4x4/Part-time AWD</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label for="clusterCarClass">Vehicle Class</label>
+              <select id="clusterCarClass" class="form-control">
                 <option value="Compact">Compact</option>
                 <option value="Sedan">Sedan</option>
                 <option value="SUV">SUV</option>
@@ -121,8 +144,8 @@
             </div>
 
             <div class="form-group">
-              <label for="fuelType">Fuel Type</label>
-              <select id="fuelType" class="form-control">
+              <label for="clusterFuelType">Fuel Type</label>
+              <select id="clusterFuelType" class="form-control">
                 <option value="G">Gasoline (Regular)</option>
                 <option value="GPR">Gasoline (Premium)</option>
                 <option value="DU">Diesel</option>
@@ -130,20 +153,21 @@
             </div>
 
             <div class="form-group">
-              <label for="userMPG">Estimated City MPG</label>
-              <input type="number" id="userMPG" min="5" max="70" value="25">
+              <div class="checkbox-group">
+                <input type="checkbox" id="clusterSmartway" />
+                <label for="clusterSmartway">SmartWay Certified?</label>
+              </div>
             </div>
 
             <button type="button" class="predict-btn" onclick="makePrediction()">
-              <span id="regressionBtn">Predict MPG</span>
-              <span id="clusteringBtn" style="display:none">Find Cluster</span>
+              Find Cluster
             </button>
           </form>
         </div>
       </div>
 
       <div class="output-panel">
-        <!-- Regression Results -->
+        <!-- Regression Output -->
         <div class="tab-content active" id="regressionResultsOutput">
           <div class="result-card">
             <h3>MPG Prediction Result</h3>
@@ -168,7 +192,7 @@
           </div>
         </div>
 
-        <!-- Clustering Results -->
+        <!-- Clustering Output -->
         <div class="tab-content" id="clusteringResultsOutput">
           <div class="result-card cluster-result">
             <h3>Vehicle Cluster Analysis</h3>
