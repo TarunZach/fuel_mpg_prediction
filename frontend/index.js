@@ -1,8 +1,5 @@
-// Updated index.js to connect to Flask API and include fuelType
-
 let currentModel = 'regression';
 
-// Update range values
 document.getElementById('engineDispl').oninput = function () {
   document.getElementById('engineDisplValue').textContent = this.value;
 };
@@ -10,33 +7,40 @@ document.getElementById('cylinders').oninput = function () {
   document.getElementById('cylindersValue').textContent = this.value;
 };
 
-function switchTab(model) {
+function switchTab(model, event) {
   currentModel = model;
 
   document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
-  event.target.classList.add('active');
+  if (event && event.target) event.target.classList.add('active');
 
   document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
   document.getElementById(model + 'Results').classList.add('active');
+  document.getElementById(model + 'ResultsOutput').classList.add('active');
 
   document.getElementById('regressionBtn').style.display = model === 'regression' ? 'inline' : 'none';
   document.getElementById('clusteringBtn').style.display = model === 'clustering' ? 'inline' : 'none';
 }
 
 function makePrediction() {
-  const formData = {
-    engineDispl: parseFloat(document.getElementById('engineDispl').value),
-    cylinders: parseInt(document.getElementById('cylinders').value),
-    transmission: document.getElementById('transmission').value,
-    driveSys: document.getElementById('driveSys').value,
-    carClass: document.getElementById('carClass').value,
-    smartway: document.getElementById('smartway').checked,
-    fuelType: document.getElementById('fuelType').value
-  };
-
   if (currentModel === 'regression') {
+    const formData = {
+      engineDispl: parseFloat(document.getElementById('engineDispl').value),
+      cylinders: parseInt(document.getElementById('cylinders').value),
+      transmission: document.getElementById('transmission').value,
+      driveSys: document.getElementById('driveSys').value,
+      carClass: document.getElementById('carClass').value,
+      smartway: document.getElementById('smartway').checked,
+      fuelType: document.getElementById('fuelType').value
+    };
     predictMPG(formData);
   } else {
+    const formData = {
+      engineDispl: parseFloat(document.getElementById('engineDispl').value),
+      cylinders: parseInt(document.getElementById('cylinders').value),
+      carClass: document.getElementById('carClass').value,
+      fuelType: document.getElementById('fuelType').value,
+      userMPG: parseFloat(document.getElementById('userMPG').value)
+    };
     predictCluster(formData);
   }
 }
@@ -44,9 +48,7 @@ function makePrediction() {
 function predictMPG(data) {
   fetch("http://127.0.0.1:5000/predict_mpg", {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json"
-    },
+    headers: { "Content-Type": "application/json" },
     body: JSON.stringify(data)
   })
     .then(res => res.json())
@@ -70,9 +72,7 @@ function predictMPG(data) {
 function predictCluster(data) {
   fetch("http://127.0.0.1:5000/predict_cluster", {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json"
-    },
+    headers: { "Content-Type": "application/json" },
     body: JSON.stringify(data)
   })
     .then(res => res.json())
@@ -104,9 +104,8 @@ function predictCluster(data) {
 
       const similarVehicles = [
         `${data.carClass} with ${data.cylinders}-cylinder engine`,
-        `${data.transmission} transmission`,
-        `${data.driveSys} drive system`,
-        `Fuel type: ${data.fuelType}`
+        `Fuel type: ${data.fuelType}`,
+        `Estimated MPG: ${data.userMPG}`
       ];
 
       document.getElementById('similarVehicles').innerHTML =

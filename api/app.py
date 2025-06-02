@@ -1,25 +1,22 @@
-# app.py (updated to handle numpy data types for JSON serialization)
+# app.py (updated for simplified frontend models with simplified scaler)
 
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 import joblib
 import pandas as pd
-import numpy as np
 
 app = Flask(__name__)
 CORS(app)
 
-# Load models and expected column structure
-regression_model = joblib.load("../models/XGBoost.pkl")
-clustering_model = joblib.load("../models/Birch.pkl")
-model_columns = joblib.load("../models/model_columns.pkl")
+# Load simplified models and expected column structures
+regression_model = joblib.load("../models/XGBoost_simple.pkl")
+clustering_model = joblib.load("../models/Birch_simple.pkl")
+key_columns = joblib.load("../models/key_columns.pkl")
+simplified_scaler = joblib.load("../models/simplified_scaler.pkl")
 
 
-def preprocess_input(data):
-    # Extract simplified fuel type (e.g., "G", "DU", "GPR", etc.)
+def preprocess_regression_input(data):
     fuel_type_value = data.get("fuelType", "G")
-
-    # Build raw input DataFrame
     raw_input = pd.DataFrame(
         [
             {
@@ -33,31 +30,48 @@ def preprocess_input(data):
             }
         ]
     )
-
-    # One-hot encode
     encoded = pd.get_dummies(raw_input)
-
-    # Add missing columns
-    for col in model_columns:
+    for col in key_columns:
         if col not in encoded.columns:
             encoded[col] = 0
+    encoded = encoded[key_columns]
+    encoded_scaled = simplified_scaler.transform(encoded)
+    print("Encoded input columns:", encoded.columns.tolist())
+    print("Input row:\n", encoded.head())
+    return encoded_scaled
 
-    # Reorder to match model input
-    encoded = encoded[model_columns]
-    return encoded
+
+def preprocess_clustering_input(data):
+    fuel_type_value = data.get("fuelType", "G")
+    raw_input = pd.DataFrame(
+        [
+            {
+                "Eng Displ": data["engineDispl"],
+                "# Cyl": data["cylinders"],
+                "Carline Class": data["carClass"],
+                "Fuel Usage  - Conventional Fuel": fuel_type_value,
+                "city_mpg": data["userMPG"],
+            }
+        ]
+    )
+    encoded = pd.get_dummies(raw_input)
+    for col in key_columns:
+        if col not in encoded.columns:
+            encoded[col] = 0
+    encoded = encoded[key_columns]
+    encoded_scaled = simplified_scaler.transform(encoded)
+
+    return encoded_scaled
 
 
 @app.route("/predict_mpg", methods=["POST"])
 def predict_mpg():
     data = request.get_json()
     try:
-        processed_input = preprocess_input(data)
+        processed_input = preprocess_regression_input(data)
         prediction = regression_model.predict(processed_input)[0]
-
-        # Convert numpy float32 to Python float for JSON serialization
         prediction = float(prediction)
 
-        # MPG rating label
         if prediction >= 35:
             label = "🚀 Excellent"
         elif prediction >= 25:
@@ -76,18 +90,10 @@ def predict_mpg():
 def predict_cluster():
     data = request.get_json()
     try:
-        processed_input = preprocess_input(data)
+        processed_input = preprocess_clustering_input(data)
         cluster_prediction = clustering_model.predict(processed_input)[0]
-
-        # Convert numpy types to Python types for JSON serialization
         cluster = int(cluster_prediction)
-
-        return jsonify(
-            {
-                "cluster": cluster,
-                "confidence": 0.87,  # Placeholder value
-            }
-        )
+        return jsonify({"cluster": cluster, "confidence": 0.87})
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
