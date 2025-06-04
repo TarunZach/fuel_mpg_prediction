@@ -7,11 +7,9 @@ app = Flask(__name__)
 CORS(app)
 
 CLUSTER_LABELS = {
-    0: "Standard Vehicles",
-    1: "Efficient Sedans",
-    2: "Compact Economy",
-    3: "Performance/High Power",
-    4: "SUVs and Trucks",
+    2: "Compact & Efficient",
+    0: "Standard/Mid-range",
+    1: "High Power / Utility",
 }
 
 # Load models and preprocessing components
@@ -71,7 +69,13 @@ def predict_cluster():
         input_scaled = preprocess_input(data)
         cluster = int(clustering_model.predict(input_scaled)[0])
         label = CLUSTER_LABELS.get(cluster, f"Cluster {cluster}")
-        return jsonify({"cluster": cluster, "label": label, "confidence": 0.87})
+        return jsonify(
+            {
+                "cluster": cluster,
+                "label": label,
+                "confidence": 0.87,
+            }
+        )
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 

@@ -80,8 +80,8 @@ function predictMPG(data) {
       }
       document.getElementById('mpgResult').innerHTML = `
         <div class="result-value">${result.mpg}</div>
-        <div style="font-size: 1.1em; margin-bottom: 15px;">Miles Per Gallon (City)</div>
-        <div class="result-label">${result.label}</div>
+        <div style="font-size: 1.1em; margin-bottom: 15px; color: white;">Miles Per Gallon (City)</div>
+        <div class="result-label" style="color: white;">${result.label}</div>
       `;
     })
     .catch(err => {
@@ -104,24 +104,18 @@ function predictCluster(data) {
       }
 
       const clusterIndex = result.cluster;
-      const clusters = [
-        { name: "Economy Compact", description: "Small, fuel-efficient vehicles" },
-        { name: "Mid-size Sedan", description: "Balanced performance and efficiency" },
-        { name: "Luxury SUV", description: "Large, feature-rich vehicles" },
-        { name: "Performance Sport", description: "High-performance vehicles" },
-        { name: "Utility Truck", description: "Work and utility vehicles" }
-      ];
 
-      const assigned = clusters[clusterIndex % clusters.length];
+      const label = result.label || `Cluster ${clusterIndex}`;
       document.getElementById('clusterResult').innerHTML = `
-        <div class="result-value">Cluster ${clusterIndex + 1}</div>
-        <div style="font-size: 1.2em; margin-bottom: 15px; color:white;">${assigned.name}</div>
-        <div class="cluster-info">
-          <h4>Cluster Characteristics:</h4>
-          <p>${assigned.description}</p>
-          <p><strong>Confidence:</strong> ${(result.confidence * 100).toFixed(1)}%</p>
-        </div>
-      `;
+  <div class="result-value">Cluster ${clusterIndex + 1}</div>
+  <div style="font-size: 1.2em; margin-bottom: 15px; color:white;">${label}</div>
+  <div class="cluster-info">
+    <h4>Cluster Characteristics:</h4>
+    <p>Based on your input, this vehicle belongs to a group with similar performance and fuel efficiency characteristics.</p>
+    <p><strong>Confidence:</strong> ${(result.confidence * 100).toFixed(1)}%</p>
+  </div>
+`;
+
 
       const similarVehicles = [
         `${data.carClass} with ${data.cylinders}-cylinder engine`,
