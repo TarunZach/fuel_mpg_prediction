@@ -6,9 +6,17 @@ import pandas as pd
 app = Flask(__name__)
 CORS(app)
 
+CLUSTER_LABELS = {
+    0: "Standard Vehicles",
+    1: "Efficient Sedans",
+    2: "Compact Economy",
+    3: "Performance/High Power",
+    4: "SUVs and Trucks",
+}
+
 # Load models and preprocessing components
 regression_model = joblib.load("../models/XGBoost_simple.pkl")
-clustering_model = joblib.load("../models/Birch_simple.pkl")
+clustering_model = joblib.load("../models/KMeans_simple.pkl")
 key_columns = joblib.load("../models/key_columns.pkl")
 simplified_scaler = joblib.load("../models/simplified_scaler.pkl")
 
@@ -62,10 +70,12 @@ def predict_cluster():
     try:
         input_scaled = preprocess_input(data)
         cluster = int(clustering_model.predict(input_scaled)[0])
-        return jsonify({"cluster": cluster, "confidence": 0.87})
+        label = CLUSTER_LABELS.get(cluster, f"Cluster {cluster}")
+        return jsonify({"cluster": cluster, "label": label, "confidence": 0.87})
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
 
 if __name__ == "__main__":
     app.run(debug=True)
+    # Production: app.run(host="0.0.0.0", port=5000)
