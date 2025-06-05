@@ -103,7 +103,7 @@ cd api/
 python app.py
 ```
 
-By default, the server runs on http://127.0.0.1:5000
+By default, the server runs on http://127.0.0.1:5000 ([Fuel Economy Predictor & Vehicle Clustering](http://127.0.0.1:5500/frontend/index.html))
 
 ### 🌐 5. Launch the frontend
 
